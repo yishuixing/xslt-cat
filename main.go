@@ -3,18 +3,26 @@ package main
 import (
 	"fmt"
 	"github.com/yishuixing/xslt-cat/common"
+	"io/ioutil"
+	"os"
 	"regexp"
 	"strings"
 )
 
 const (
-	xslt_dir            = `D:\work\git\xml-translator\4.2`
 	pattern_import      = `<xsl:import href="(\w+\.xslt)`
 	pattern_stylesheet  = `<xsl:stylesheet[^>]+>|\<\?xml[^>]+>|<xsl:import href="(\w+.xslt)"\s*/>`
 	pattern_stylesheet2 = `<xsl:stylesheet[^>]+>`
 )
 
 func main() {
+	i := len(os.Args)
+	if i < 2 {
+		fmt.Println("输入xslt目录")
+		os.Exit(-1)
+		//xslt_dir            := `D:\work\git\xml-translator\4.2`
+	}
+	xslt_dir := os.Args[1]
 	dm_content := common.ReadToString(xslt_dir + `\dm.xslt`)
 	items := GetXslt(dm_content, pattern_import)
 	dm_c := CleanXslt(dm_content)
@@ -32,6 +40,7 @@ func main() {
 		all_xslt += CleanXslt(c)
 	}
 	all_xslt += `</xsl:stylesheet>`
+	ioutil.WriteFile("DM_S1000D_4.2.xslt", []byte(all_xslt), 0644)
 	fmt.Println(all_xslt)
 }
 func GetXslt(s, pattern string) []string {
